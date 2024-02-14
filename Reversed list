@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definition for singly-linked list.
+struct ListNode {
+    int val;
+    struct ListNode *next;
+};
+
+struct ListNode* reverseKGroup(struct ListNode* head, int k) {
+    struct ListNode *current = head;
+    struct ListNode *next = NULL;
+    struct ListNode *prev = NULL;
+    int count = 0;
+
+    // Count the number of nodes in the current group
+    while (current != NULL && count < k) {
+        current = current->next;
+        count++;
+    }
+
+    // If the number of nodes is less than k, no need to reverse, return head
+    if (count < k) {
+        return head;
+    }
+
+    // Reverse the nodes in the current group
+    current = head;
+    count = 0;
+    while (current != NULL && count < k) {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+        count++;
+    }
+
+    // Recursively call reverseKGroup for the remaining list
+    if (next != NULL) {
+        head->next = reverseKGroup(next, k);
+    }
+
+    // Return the new head of the reversed list
+    return prev;
+}
+
+// Helper function to create a new node
+struct ListNode* newNode(int val) {
+    struct ListNode* node = (struct ListNode*)malloc(sizeof(struct ListNode));
+    node->val = val;
+    node->next = NULL;
+    return node;
+}
+
+// Helper function to print the linked list
+void printList(struct ListNode* head) {
+    while (head != NULL) {
+        printf("%d -> ", head->val);
+        head = head->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    // Create a sample linked list: 1 -> 2 -> 3 -> 4 -> 5 -> NULL
+    struct ListNode* head = newNode(1);
+    head->next = newNode(2);
+    head->next->next = newNode(3);
+    head->next->next->next = newNode(4);
+    head->next->next->next->next = newNode(5);
+
+    int k = 2; // Reverse in groups of 2
+
+    printf("Original List: ");
+    printList(head);
+
+    // Reverse the linked list in groups of k
+    head = reverseKGroup(head, k);
+
+    printf("Reversed List: ");
+    printList(head);
+
+    return 0;
+}
