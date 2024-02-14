@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Function to evaluate an arithmetic expression
+int evaluate(char *expression) {
+    int num = 0;
+    int result = 0;
+    char op = '+';
+
+    // Iterate through the expression
+    for (int i = 0; expression[i] != '\0'; i++) {
+        char ch = expression[i];
+
+        // If the character is a digit, update the number
+        if (isdigit(ch)) {
+            num = num * 10 + (ch - '0');
+        }
+
+        // If the character is an operator or it's the end of the expression
+        if (!isdigit(ch) || expression[i + 1] == '\0') {
+            // Apply the previous operator to the result
+            if (op == '+') {
+                result += num;
+            } else if (op == '-') {
+                result -= num;
+            } else if (op == '*') {
+                result *= num;
+            }
+
+            // Update the operator and reset the number
+            op = ch;
+            num = 0;
+        }
+    }
+
+    return result;
+}
+
+// Recursive function to compute all possible results
+void computeResults(char *expression, int start, int end, int *results, int *count) {
+    // Base case: If the substring contains only a single number, add it to the results
+    if (start == end) {
+        results[*count] = expression[start] - '0';
+        (*count)++;
+        return;
+    }
+
+    // Iterate through the substring and split it at each operator
+    for (int i = start; i <= end; i++) {
+        if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*') {
+            char left[50], right[50];
+            strncpy(left, expression + start, i - start);
+            left[i - start] = '\0';
+            strncpy(right, expression + i + 1, end - i);
+            right[end - i] = '\0';
+
+            int leftResults[100], rightResults[100];
+            int leftCount = 0, rightCount = 0;
+
+            // Recursively compute results for left and right substrings
+            computeResults(left, 0, strlen(left) - 1, leftResults, &leftCount);
+            computeResults(right, 0, strlen(right) - 1, rightResults, &rightCount);
+
+            // Combine results using the operator and add them to the results array
+            for (int j = 0; j < leftCount; j++) {
+                for (int k = 0; k < rightCount; k++) {
+                    if (expression[i] == '+') {
+                        results[*count] = leftResults[j] + rightResults[k];
+                    } else if (expression[i] == '-') {
+                        results[*count] = leftResults[j] - rightResults[k];
+                    } else if (expression[i] == '*') {
+                        results[*count] = leftResults[j] * rightResults[k];
+                    }
+                    (*count)++;
+                }
+            }
+        }
+    }
+}
+
+int* diffWaysToCompute(char *expression, int *returnSize) {
+    int *results = (int *)malloc(100 * sizeof(int));
+    *returnSize = 0;
+
+    computeResults(expression, 0, strlen(expression) - 1, results, returnSize);
+
+    return results;
+}
+
+int main() {
+    char expression[] = "2-1-1";
+    int returnSize;
+
+    int *results = diffWaysToCompute(expression, &returnSize);
+
+    printf("Possible results:\n");
+    for (int i = 0; i < returnSize; i++) {
+        printf("%d\n", results[i]);
+    }
+
+    free(results);
+
+    return 0;
+}
