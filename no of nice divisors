@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MOD 1000000007
+
+// Function to calculate power modulo MOD
+long long power(long long x, long long y) {
+    long long res = 1;
+    x = x % MOD;
+
+    while (y > 0) {
+        if (y & 1)
+            res = (res * x) % MOD;
+        y = y >> 1;
+        x = (x * x) % MOD;
+    }
+
+    return res;
+}
+
+// Function to compute the number of nice divisors
+int maxNiceDivisors(int primeFactors) {
+    if (primeFactors <= 3) {
+        return primeFactors;
+    }
+
+    long long result = 1;
+
+    if (primeFactors % 3 == 1) {
+        result = power(3, primeFactors / 3 - 1);
+        result = (result * 4) % MOD;
+    } else if (primeFactors % 3 == 2) {
+        result = power(3, primeFactors / 3);
+        result = (result * 2) % MOD;
+    } else {
+        result = power(3, primeFactors / 3);
+    }
+
+    return (int)result;
+}
+
+int main() {
+    int primeFactors = 5;
+    int niceDivisors = maxNiceDivisors(primeFactors);
+
+    printf("Number of nice divisors: %d\n", niceDivisors);
+
+    return 0;
+}
